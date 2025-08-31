@@ -11,17 +11,17 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 // Componente para exibir o gráfico de barras
 const ProcedureChart = ({ title, data }) => (
-  <div className="bg-white rounded-xl shadow-xl p-4 mb-8 w-full max-w-sm mx-auto">
-    <h2 className="text-lg font-bold text-gray-800 text-center mb-4">{title}</h2>
-    <ResponsiveContainer width="100%" height={200}>
+  <div className="bg-white rounded-xl shadow-xl p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4">
+    <h2 className="text-sm font-bold text-gray-800 text-center mb-4">{title}</h2>
+    <ResponsiveContainer width="100%" height={180}>
       <BarChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         barCategoryGap={2}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
+        <XAxis dataKey="name" tick={{ fontSize: 16 }} />
+        <YAxis tick={{ fontSize: 16 }} />
         <Tooltip />
         <Legend />
         <Bar dataKey="conteo" fill="#60a5fa" radius={[10, 10, 0, 0]} barSize={10} />
@@ -38,7 +38,7 @@ const ProcedureDataDisplay = ({ chartData }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Dados Detalhados de los Procedimientos</h2>
+      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Dados Detalhados de los Procedimentos</h2>
       {Object.keys(chartData).map((procedureName, index) => (
         <div key={index} className="mb-6 border-b border-gray-200 last:border-b-0 pb-4">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">{`Procedimento: ${procedureName}`}</h3>
@@ -69,13 +69,13 @@ const ProcedureDataDisplay = ({ chartData }) => {
 };
 
 // Novo componente para exibir o gráfico de barras total
-const TotalProcedureBarChart = ({ data }) => (
-  <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-auto mt-8">
-    <h2 className="text-xl font-bold text-gray-800 text-center mb-4">Total de Procedimentos</h2>
-    <ResponsiveContainer width="100%" height={400}>
+const TotalProcedureBarChart = ({ data, title }) => (
+  <div className="bg-white rounded-xl shadow-xl p-6 w-full lg:w-1/2">
+    <h2 className="text-base font-bold text-gray-800 text-center mb-4">{title}</h2>
+    <ResponsiveContainer width="100%" height={350}>
       <BarChart
         data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 150 }}
+        margin={{ top: 20, right: 30, left: 20, bottom: 160 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
@@ -83,9 +83,10 @@ const TotalProcedureBarChart = ({ data }) => (
           angle={-45} 
           textAnchor="end" 
           interval={0}
-          height={150}
+          height={160}
+          tick={{ fontSize: 16 }}
         />
-        <YAxis />
+        <YAxis tick={{ fontSize: 16 }} />
         <Tooltip />
         <Legend />
         <Bar dataKey="value">
@@ -103,7 +104,8 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState({});
   const [totalCount, setTotalCount] = useState(0);
-  const [pieChartData, setPieChartData] = useState([]);
+  const [allProceduresData, setAllProceduresData] = useState([]);
+  const [proceduresWithoutPapData, setProceduresWithoutPapData] = useState([]);
   const [error, setError] = useState(null);
 
   const filePath = '/dados.csv';
@@ -123,51 +125,80 @@ const App = () => {
           complete: (results) => {
             const data = results.data;
             const years = ['2022', '2023', '2024'];
-            const proceduresByYear = {};
-            const totalProcedures = {};
-            let total = 0;
-    
+            
+            // Passo 1: Identifica todas as colunas que contêm "PROCEDIMENTO" no cabeçalho
+            const procedureHeaders = results.meta.fields.filter(field => 
+              field.toUpperCase().includes('PROCEDIM')
+            );
+            
+            // Passo 2: Coleta todos os nomes de procedimentos únicos do arquivo CSV, normalizando para maiúsculas
+            const allUniqueProcedures = new Set();
             data.forEach(row => {
-              const year = row['AÑO'];
-              Object.keys(row).forEach(key => {
-                const trimmedKey = key.trim();
-                // Verifica se o cabeçalho da coluna contém 'PROCEDIMENTO'
-                if (trimmedKey.includes('PROCEDIMENTO')) {
-                  const procedure = row[key];
-                  if (procedure && procedure.trim() !== '') {
-                    if (!proceduresByYear[procedure]) {
-                      proceduresByYear[procedure] = {};
-                      totalProcedures[procedure] = 0;
-                    }
-                    if (!proceduresByYear[procedure][year]) {
-                      proceduresByYear[procedure][year] = 0;
-                    }
-                    proceduresByYear[procedure][year]++;
-                    totalProcedures[procedure]++;
-                    total++;
-                  }
+              procedureHeaders.forEach(header => {
+                const procedure = row[header];
+                if (procedure && procedure.trim() !== '') {
+                  allUniqueProcedures.add(procedure.trim().toUpperCase());
                 }
               });
             });
-    
-            // Preenche com 0 os anos ausentes para cada procedimento
-            const allProcedures = Object.keys(proceduresByYear);
-            const formattedData = {};
-            allProcedures.forEach(procedure => {
-              formattedData[procedure] = years.map(year => ({
-                name: year,
-                'conteo': proceduresByYear[procedure][year] || 0
-              }));
+
+            // Passo 3: Inicializa a contagem de todos os procedimentos únicos
+            const proceduresData = {};
+            allUniqueProcedures.forEach(procedureName => {
+              proceduresData[procedureName] = { total: 0, years: {} };
+              years.forEach(y => proceduresData[procedureName].years[y] = 0);
             });
 
-            const formattedPieData = Object.keys(totalProcedures).map(procedure => ({
-              name: procedure,
-              value: totalProcedures[procedure]
-            }));
-    
-            setChartData(formattedData);
-            setPieChartData(formattedPieData);
-            setTotalCount(total);
+            // Passo 4: Conta os procedimentos por ano, normalizando o nome para maiúsculas
+            let totalProceduresCount = 0;
+            data.forEach(row => {
+              const year = row['AÑO'];
+              if (year && years.includes(year)) {
+                procedureHeaders.forEach(header => {
+                  const procedure = row[header];
+                  if (procedure && procedure.trim() !== '') {
+                    const trimmedUpperCaseProcedure = procedure.trim().toUpperCase();
+                    if (proceduresData[trimmedUpperCaseProcedure]) {
+                      proceduresData[trimmedUpperCaseProcedure].years[year]++;
+                      proceduresData[trimmedUpperCaseProcedure].total++;
+                      totalProceduresCount++;
+                    }
+                  }
+                });
+              }
+            });
+
+            // Passo 5: Formata os dados para os gráficos
+            const formattedChartData = {};
+            const formattedAllProceduresData = [];
+            const formattedProceduresWithoutPapData = [];
+
+            const procedureNames = Object.keys(proceduresData).sort();
+
+            procedureNames.forEach(procedureName => {
+              // Gráfico por ano para cada procedimento
+              formattedChartData[procedureName] = years.map(year => ({
+                name: year,
+                conteo: proceduresData[procedureName].years[year]
+              }));
+              
+              // Gráfico total
+              const totalDataPoint = {
+                name: procedureName,
+                value: proceduresData[procedureName].total
+              };
+              formattedAllProceduresData.push(totalDataPoint);
+              
+              // Gráfico sem Papanicolau
+              if (procedureName !== 'TOMA DE MUESTRA DE PAPANICOLAU CERVICAL') {
+                formattedProceduresWithoutPapData.push(totalDataPoint);
+              }
+            });
+            
+            setChartData(formattedChartData);
+            setAllProceduresData(formattedAllProceduresData);
+            setProceduresWithoutPapData(formattedProceduresWithoutPapData);
+            setTotalCount(totalProceduresCount);
             setLoading(false);
           },
           error: (error) => {
@@ -205,8 +236,8 @@ const App = () => {
 
   if (Object.keys(chartData).length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600 text-lg">No se encontraron dados de procedimiento para mostrar.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <p className="text-gray-600 text-lg mb-4">No se encontraron dados de procedimiento para mostrar.</p>
       </div>
     );
   }
@@ -222,7 +253,7 @@ const App = () => {
         </p>
         <p className="mt-4 text-2xl font-bold text-gray-800">Total de Procedimentos: {totalCount}</p>
       </header>
-      <main className="flex flex-wrap justify-center gap-4">
+      <main className="flex flex-wrap justify-center gap-8">
         {Object.keys(chartData).map((procedureName, index) => (
           <ProcedureChart
             key={index}
@@ -231,8 +262,9 @@ const App = () => {
           />
         ))}
       </main>
-      <div className="flex justify-center">
-        <TotalProcedureBarChart data={pieChartData} />
+      <div className="flex flex-col lg:flex-row lg:justify-center lg:items-start gap-8 mt-8">
+        <TotalProcedureBarChart data={allProceduresData} title="Total de Todos os Procedimentos" />
+        <TotalProcedureBarChart data={proceduresWithoutPapData} title="Total de Procedimentos (Excluindo Papanicolau)" />
       </div>
       <div className="flex justify-center">
         <ProcedureDataDisplay chartData={chartData} />
