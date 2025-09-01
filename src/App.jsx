@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import Papa from 'papaparse';
 import './index.css';
+import PapanicolauComparisonChart from './componets/PapanicolauComparisonChart';
 
 // Cores para os gráficos
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
@@ -68,6 +69,7 @@ const ProcedureDataDisplay = ({ chartData }) => {
   );
 };
 
+
 // Novo componente para exibir o gráfico de barras total
 const TotalProcedureBarChart = ({ data, title }) => (
   <div className="bg-white rounded-xl shadow-xl p-6 w-full lg:w-1/2">
@@ -84,7 +86,7 @@ const TotalProcedureBarChart = ({ data, title }) => (
           textAnchor="end" 
           interval={0}
           height={160}
-          tick={{ fontSize: 10 }}
+          tick={{ fontSize: 8 }}
         />
         <YAxis tick={{ fontSize: 16 }} />
         <Tooltip />
@@ -96,8 +98,10 @@ const TotalProcedureBarChart = ({ data, title }) => (
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    
   </div>
 );
+
 
 // Componente principal da aplicação
 const App = () => {
@@ -252,15 +256,20 @@ const App = () => {
             title={`Conteo de ${procedureName} por Año`}
             data={chartData[procedureName]}
           />
+          
         ))}
       </main>
+      
       <div className="flex flex-col lg:flex-row lg:justify-center lg:items-start gap-8 mt-8">
         <TotalProcedureBarChart data={allProceduresData} title="Total de Todos os Procedimentos" />
+        
       </div>
       <div className="flex justify-center">
         <ProcedureDataDisplay chartData={chartData} />
       </div>
+      
     </div>
+    
   );
 };
 
