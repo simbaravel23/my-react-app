@@ -105,7 +105,6 @@ const App = () => {
   const [chartData, setChartData] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [allProceduresData, setAllProceduresData] = useState([]);
-  const [proceduresWithoutPapData, setProceduresWithoutPapData] = useState([]);
   const [error, setError] = useState(null);
 
   const filePath = '/dados.csv';
@@ -171,7 +170,6 @@ const App = () => {
             // Passo 5: Formata os dados para os gráficos
             const formattedChartData = {};
             const formattedAllProceduresData = [];
-            const formattedProceduresWithoutPapData = [];
 
             const procedureNames = Object.keys(proceduresData).sort();
 
@@ -188,16 +186,10 @@ const App = () => {
                 value: proceduresData[procedureName].total
               };
               formattedAllProceduresData.push(totalDataPoint);
-              
-              // Gráfico sem Papanicolau
-              if (procedureName !== 'TOMA DE MUESTRA DE PAPANICOLAU CERVICAL') {
-                formattedProceduresWithoutPapData.push(totalDataPoint);
-              }
             });
             
             setChartData(formattedChartData);
             setAllProceduresData(formattedAllProceduresData);
-            setProceduresWithoutPapData(formattedProceduresWithoutPapData);
             setTotalCount(totalProceduresCount);
             setLoading(false);
           },
@@ -264,7 +256,6 @@ const App = () => {
       </main>
       <div className="flex flex-col lg:flex-row lg:justify-center lg:items-start gap-8 mt-8">
         <TotalProcedureBarChart data={allProceduresData} title="Total de Todos os Procedimentos" />
-        <TotalProcedureBarChart data={proceduresWithoutPapData} title="Total de Procedimentos (Excluindo Papanicolau)" />
       </div>
       <div className="flex justify-center">
         <ProcedureDataDisplay chartData={chartData} />
