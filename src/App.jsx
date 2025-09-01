@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import Papa from 'papaparse';
 import './index.css';
-import PapanicolauComparisonChart from './componets/PapanicolauComparisonChart';
+
 
 // Cores para os gráficos
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
@@ -39,7 +39,7 @@ const ProcedureDataDisplay = ({ chartData }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Dados Detalhados de los Procedimentos</h2>
+      <h2 className="text-sm font-bold text-gray-800 text-center mb-6">Dados Detalhados de los Procedimentos</h2>
       {Object.keys(chartData).map((procedureName, index) => (
         <div key={index} className="mb-6 border-b border-gray-200 last:border-b-0 pb-4">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">{`Procedimento: ${procedureName}`}</h3>
