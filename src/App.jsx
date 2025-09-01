@@ -12,12 +12,12 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 // Componente para exibir o gráfico de barras
 const ProcedureChart = ({ title, data }) => (
-  <div className="bg-white rounded-xl shadow-xl p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4">
-    <h2 className="text-sm font-bold text-gray-800 text-center mb-4">{title}</h2>
+  <div className="bg-white rounded-xl shadow-xl p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 ">
+    <h2 className="text-base font-bold text-gray-800 text-center mb-4 ">{title}</h2>
     <ResponsiveContainer width="100%" height={180}>
       <BarChart
         data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 20, right: 580, left: 30, bottom: 5 }}
         barCategoryGap={2}
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -239,17 +239,17 @@ const App = () => {
   }
 
   return (
-    <div className="font-sans antialiased">
-      <header className="text-center mb-12">
+    <div className="font-sans antialiased ">
+      <header className="text-center mb-12 ">
         <h1 className="text-4xl font-extrabold text-gray-900 leading-tight mb-2">
           Análisis de Procedimientos por Año
         </h1>
         <p className="text-gray-600 text-lg">
-          Gráficos detalhados de los procedimentos realizados, a partir de los dados do CSV.
+          Gráficos detalhados de los procedimentos realizados.
         </p>
         <p className="mt-4 text-2xl font-bold text-gray-800">Total de Procedimentos: {totalCount}</p>
       </header>
-      <main className="flex flex-wrap justify-center gap-8">
+      <main className="flex flex-wrap justify-center gap-4">
         {Object.keys(chartData).map((procedureName, index) => (
           <ProcedureChart
             key={index}
