@@ -71,11 +71,11 @@ const ProcedureDataDisplay = ({ chartData }) => {
 // Novo componente para exibir o gráfico de barras total
 const TotalProcedureBarChart = ({ data, title }) => (
   <div className="bg-white rounded-xl shadow-xl p-6 w-full lg:w-1/2">
-    <h2 className="text-base font-bold text-gray-800 text-center mb-4">{title}</h2>
-    <ResponsiveContainer width="100%" height={350}>
+    <h2 className="text-lg font-bold text-gray-800 text-center mb-4">{title}</h2>
+    <ResponsiveContainer width="100%" height={450}>
       <BarChart
         data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 160 }}
+        margin={{ top: 40, right: 30, left: 20, bottom: 100 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
@@ -84,7 +84,7 @@ const TotalProcedureBarChart = ({ data, title }) => (
           textAnchor="end" 
           interval={0}
           height={160}
-          tick={{ fontSize: 16 }}
+          tick={{ fontSize: 10 }}
         />
         <YAxis tick={{ fontSize: 16 }} />
         <Tooltip />
