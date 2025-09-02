@@ -8,7 +8,7 @@ import './index.css';
 
 
 // Cores para os gráficos
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
+const COLORS = ['#0088FE'];
 
 // Componente para exibir o gráfico de barras
 const ProcedureChart = ({ title, data }) => (
