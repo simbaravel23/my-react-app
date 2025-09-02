@@ -3,9 +3,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   Cell
 } from 'recharts';
-import Papa from 'papaparse';
-import './index.css';
-
 
 // Cores para os gráficos
 const COLORS = ['#0088FE'];
@@ -114,6 +111,20 @@ const App = () => {
   const filePath = '/dados.csv';
   
   useEffect(() => {
+    // Adiciona o script do PapaParse globalmente se ainda não estiver presente
+    if (!window.Papa) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js';
+      script.onload = () => fetchAndParseCSV();
+      script.onerror = () => {
+        setError('Não foi possível carregar o script do PapaParse.');
+        setLoading(false);
+      };
+      document.head.appendChild(script);
+    } else {
+      fetchAndParseCSV();
+    }
+
     const fetchAndParseCSV = async () => {
       try {
         const response = await fetch(filePath);
@@ -122,7 +133,7 @@ const App = () => {
         }
         const text = await response.text();
         
-        Papa.parse(text, {
+        window.Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
@@ -209,8 +220,6 @@ const App = () => {
         setLoading(false);
       }
     };
-
-    fetchAndParseCSV();
   }, []);
 
   if (loading) {
@@ -233,7 +242,7 @@ const App = () => {
   if (Object.keys(chartData).length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <p className="text-gray-600 text-lg mb-4">No se encontraron dados de procedimiento para mostrar.</p>
+        <p className="text-gray-600 text-lg mb-4">No se encontraron dados de procedimento para mostrar.</p>
       </div>
     );
   }
@@ -241,9 +250,13 @@ const App = () => {
   return (
     <div className="font-sans antialiased ">
       <header className="text-center mb-12 ">
-        <h1 className="text-4xl font-extrabold text-gray-900 leading-tight mb-2">
-          Análisis de Procedimientos por Año
-        </h1>
+        {/* Adicionei uma div para centralizar a imagem e o título horizontalmente */}
+        <div className="flex flex-col items-center justify-center gap-4">
+            
+            <h1 className="text-4xl font-extrabold text-gray-900 leading-tight mb-2">
+                Análise de Procedimentos por Ano
+            </h1>
+        </div>
         <p className="text-gray-600 text-lg">
           Gráficos detalhados de los procedimentos realizados.
         </p>
@@ -264,12 +277,18 @@ const App = () => {
         <TotalProcedureBarChart data={allProceduresData} title="Total de Todos os Procedimentos" />
         
       </div>
+      {/* Imagem adicionada abaixo do último gráfico, antes da tabela de dados */}
+      <img
+            src="/papanicolau.png"
+            alt="Papanicolau"
+            className="block mx-auto mt-14 rounded-lg shadow-xl max-w-sm"
+      />
       <div className="flex justify-center">
         <ProcedureDataDisplay chartData={chartData} />
       </div>
       
     </div>
-    
+     
   );
 };
 
